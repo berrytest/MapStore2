@@ -29,6 +29,10 @@ const deepChange = (nodes, findValue, propName, propValue) => {
     return [];
 };
 
+/**
+Removes a group even if it is nested
+Cannot be used to remove layers as well
+**/
 const deepRemove = (nodes, findValue) => {
     if (nodes && isArray(nodes) && nodes.length > 0) {
         return nodes.filter((node) => node.name !== findValue).map((node) => isObject(node) ? assign({}, node, node.nodes ? {
@@ -36,6 +40,37 @@ const deepRemove = (nodes, findValue) => {
         } : {}) : node);
     }
     return nodes;
+};
+
+/*
+Removes a Layer from the TOC
+Currently supports only one level of depth
+*/
+const removeNode = (groups, nodeId) => {
+    if (groups && isArray(groups) && groups.length > 0) {
+        return groups.map((group) => group.nodes && group.nodes.length ?
+            assign({}, group, {nodes: group.nodes.filter((layerId) => layerId !== nodeId)}
+            )
+         : group);
+    }
+    return groups;
+};
+
+/*
+Moves a Layer to a new group
+*/
+const moveNode = (groups, nodeId, newGroup) => {
+    if (groups && isArray(groups) && groups.length > 0) {
+        return removeNode(groups, nodeId).map((group) => {
+            if (isObject(group)) {
+                return group.id === newGroup ?
+                    assign({}, group, {nodes: (group.nodes || []).concat(nodeId)}) :
+                    group;
+            }
+            return group;
+        });
+    }
+    return groups;
 };
 
 const getNode = (nodes, name) => {
@@ -122,12 +157,27 @@ function layers(state = [], action) {
             const flatLayers = (state.flat || []);
             const selector = action.nodeType === 'groups' ? 'group' : 'id';
 
+            // const newGroups = action.options && action.options.group && action.options.group !== layer;
+            let updateGroups = false;
+
             const newLayers = flatLayers.map((layer) => {
                 if (layer[selector] === action.node || layer[selector].indexOf(action.node + '.') === 0) {
+                    if (action.options.group && layer.group !== action.options.group) {
+                        // If the layer changed group, raise a flag for the groups update
+                        updateGroups = true;
+                    }
+                    // Edit the layer with the new options
                     return assign({}, layer, action.options);
                 }
                 return assign({}, layer);
             });
+
+            if (updateGroups) {
+                return assign({}, state, {
+                    flat: newLayers,
+                    groups: moveNode(state.groups, action.node, action.options.group)
+                });
+            }
             return assign({}, state, {flat: newLayers});
         }
         case INVALID_LAYER: {
