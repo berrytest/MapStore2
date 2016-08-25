@@ -18,13 +18,30 @@ var Menu = React.createClass({
         show: React.PropTypes.bool,
         onToggle: React.PropTypes.func,
         onChoose: React.PropTypes.func,
-        single: React.PropTypes.bool
+        single: React.PropTypes.bool,
+        width: React.PropTypes.number,
+        overlapMap: React.PropTypes.bool,
+        changeMapStyle: React.PropTypes.func
     },
     getDefaultProps() {
         return {
             docked: false,
-            single: false
+            single: false,
+            width: 300,
+            overlapMap: true
         };
+    },
+    componentDidMount() {
+        if (!this.overlapMap && this.props.show) {
+            let style = {left: this.props.width, width: `calc(100% - ${this.props.width}px)`};
+            this.props.changeMapStyle(style, "drawerMenu");
+        }
+    },
+    componentDidUpdate(prevProps) {
+        if (!this.props.overlapMap && prevProps.show !== this.props.show) {
+            let style = this.props.show ? {left: this.props.width, width: `calc(100% - ${this.props.width}px)`} : {};
+            this.props.changeMapStyle(style, "drawerMenu");
+        }
     },
     renderChildren(child, index) {
         let props = {
@@ -49,7 +66,7 @@ var Menu = React.createClass({
     renderContent() {
         const header = this.props.single ? (
             <div className="navHeader" style={{width: "100%", minHeight: "35px"}}>
-                <Glyphicon glyph="1-close" className="no-border btn-default" onClick={this.props.onToggle} style={{position: "absolute", left: "0", padding: "15px", cursor: "pointer"}}/>
+                <Glyphicon glyph="1-close" className="no-border btn-default" onClick={this.props.onToggle} style={{position: "absolute", left: "0", padding: "15px", paddingTop: "10px", cursor: "pointer"}}/>
                 <div className="navButtons">
                     {this.renderButtons()}
                 </div>
@@ -70,7 +87,7 @@ var Menu = React.createClass({
             <Sidebar styles={{
                     sidebar: {
                         zIndex: 1022,
-                        width: '300px'
+                        width: this.props.width
                     },
                     overlay: {
                         zIndex: 1021

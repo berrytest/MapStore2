@@ -59,7 +59,6 @@ const MetadataModal = React.createClass({
             options: {},
             useModal: true,
             closeGlyph: "",
-            buttonSize: "small",
             includeCloseButton: true,
             fluid: true
         };
