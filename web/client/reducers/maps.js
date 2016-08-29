@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const {MAPS_LIST_LOADED, MAPS_LIST_LOADING, MAPS_LIST_LOAD_ERROR, MAP_CREATED, MAP_UPDATING, MAP_UPDATED, MAP_DELETING, MAP_DELETED, ATTRIBUTE_UPDATED, THUMBNAIL_DELETED} = require('../actions/maps');
+const {MAPS_LIST_LOADED, MAPS_LIST_LOADING, MAPS_LIST_LOAD_ERROR, MAP_CREATED, MAP_UPDATING, MAP_METADATA_UPDATED, MAP_UPDATED, MAP_DELETING, MAP_DELETED, ATTRIBUTE_UPDATED, THUMBNAIL_DELETED} = require('../actions/maps');
 const MAP_TYPE_CHANGED = "MAP_TYPE_CHANGED"; // NOTE: this is from home action in product. move to maps actions when finished;
 const assign = require('object-assign');
 function maps(state = {mapType: "openlayers"}, action) {
@@ -35,9 +35,7 @@ function maps(state = {mapType: "openlayers"}, action) {
             let results = action.maps.results !== "" ? [action.maps.results] : [];
             return assign({}, state, action.maps, {results, loading: false});
         case MAPS_LIST_LOAD_ERROR:
-            return {
-                loadingError: action.error
-            };
+            return assign({}, state, {loadingError: action.error});
         case MAP_UPDATING: {
             let newMaps = (state.results === "" ? [] : [...state.results] );
 
@@ -48,7 +46,7 @@ function maps(state = {mapType: "openlayers"}, action) {
             }
             return assign({}, state, {results: newMaps});
         }
-        case MAP_UPDATED: {
+        case MAP_METADATA_UPDATED: {
             let newMaps = (state.results === "" ? [] : [...state.results] );
 
             for (let i = 0; i < newMaps.length; i++) {
@@ -57,6 +55,9 @@ function maps(state = {mapType: "openlayers"}, action) {
                 }
             }
             return assign({}, state, {results: newMaps});
+        }
+        case MAP_UPDATED: {
+            return state;
         }
         case ATTRIBUTE_UPDATED: {
             let newMaps = (state.results === "" ? [] : [...state.results] );

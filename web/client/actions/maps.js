@@ -15,6 +15,7 @@ const MAPS_LIST_LOADED = 'MAPS_LIST_LOADED';
 const MAPS_LIST_LOADING = 'MAPS_LIST_LOADING';
 const MAPS_LIST_LOAD_ERROR = 'MAPS_LIST_LOAD_ERROR';
 const MAP_UPDATING = 'MAP_UPDATING';
+const MAP_METADATA_UPDATED = 'MAP_METADATA_UPDATED';
 const MAP_UPDATED = 'MAP_UPDATED';
 const MAP_CREATED = 'MAP_CREATED';
 const MAP_DELETING = 'MAP_DELETING';
@@ -64,9 +65,19 @@ function mapUpdating(resourceId) {
     };
 }
 
-function mapUpdated(resourceId, newName, newDescription, result, error) {
+function mapUpdated(resourceId, content, result, error) {
     return {
         type: MAP_UPDATED,
+        resourceId,
+        content,
+        result,
+        error
+    };
+}
+
+function mapMetadataUpdated(resourceId, newName, newDescription, result, error) {
+    return {
+        type: MAP_METADATA_UPDATED,
         resourceId,
         newName,
         newDescription,
@@ -128,7 +139,7 @@ function updateMap(resourceId, content, options) {
     return (dispatch) => {
         dispatch(mapUpdating(resourceId, content));
         GeoStoreApi.putResource(resourceId, content, options).then(() => {
-            // dispatch(mapUpdated(resourceId, content, "success")); // TODO wrong usage, use another action
+            dispatch(mapUpdated(resourceId, content, "success"));
         }).catch((e) => {
             dispatch(loadError(e));
         });
@@ -187,9 +198,9 @@ function updateMapMetadata(resourceId, newName, newDescription, options) {
     return (dispatch) => {
         dispatch(mapUpdating(resourceId));
         GeoStoreApi.putResourceMetadata(resourceId, newName, newDescription, options).then(() => {
-            dispatch(mapUpdated(resourceId, newName, newDescription, "success"));
+            dispatch(mapMetadataUpdated(resourceId, newName, newDescription, "success"));
         }).catch((e) => {
-            dispatch(mapUpdated(resourceId, newName, newDescription, "failure", e));
+            dispatch(mapMetadataUpdated(resourceId, newName, newDescription, "failure", e));
         });
     };
 }
@@ -221,6 +232,6 @@ function deleteMap(resourceId, options) {
 
 module.exports = {
     MAPS_LIST_LOADED, MAPS_LIST_LOADING, MAPS_LIST_LOAD_ERROR, MAP_CREATED, MAP_UPDATING, MAP_UPDATED, MAP_DELETED, MAP_DELETING, MAP_SAVED, ATTRIBUTE_UPDATED, THUMBNAIL_DELETED,
-    loadMaps, updateMap, updateMapMetadata, deleteMap, deleteThumbnail, createThumbnail,
-    createMap
+    loadMaps, updateMap, updateMapMetadata, mapMetadataUpdated, deleteMap, deleteThumbnail, createThumbnail,
+    createMap, loadError
 };

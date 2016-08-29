@@ -116,6 +116,7 @@
             "descriptionPlaceholder": "Map Description",
             "saveTitle": "Save map",
             "saveText": "Save current map?",
+            "saveError": "Error saving map",
             "thumbnail": "Thumbnail"
         },
         "print":{

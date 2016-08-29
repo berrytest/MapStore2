@@ -114,6 +114,7 @@
             "namePlaceholder": "Nom de la carte",
             "descriptionPlaceholder": "Description de la carte",
             "saveTitle": "Sauver la carte",
+            "saveError": "Erreur lors de l'enregistrement",
             "saveText": "Sauver la carte courante?"
         },
         "print":{

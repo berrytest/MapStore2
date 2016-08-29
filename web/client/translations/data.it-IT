@@ -114,6 +114,7 @@
             "descriptionPlaceholder": "Descrizione Mappa",
             "saveTitle": "Salva mappa",
             "saveText": "Salvare la mappa corrente?",
+            "saveError": "Errore durante il salvataggio",
             "thumbnail": "Thumbnail"
         },
         "print":{

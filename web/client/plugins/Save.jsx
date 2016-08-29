@@ -14,9 +14,10 @@ const {Glyphicon} = require('react-bootstrap');
 const Message = require('../components/I18N/Message');
 const {toggleControl} = require('../actions/controls');
 const {loadMapInfo} = require('../actions/config');
-const {updateMap} = require('../actions/maps');
+const {updateMap, loadError} = require('../actions/maps');
 const ConfirmModal = require('../components/maps/modals/ConfirmModal');
 const ConfigUtils = require('../utils/ConfigUtils');
+const Notifier = require("react-bs-notifier");
 
 const {mapSelector} = require('../selectors/map');
 const {layersSelector} = require('../selectors/layers');
@@ -25,6 +26,7 @@ const stateSelector = state => state;
 const selector = createSelector(mapSelector, stateSelector, layersSelector, (map, state, layers) => ({
     currentZoomLvl: map && map.zoom,
     show: state.controls && state.controls.save && state.controls.save.enabled,
+    errorMessage: (state.maps && state.maps.loadingError && state.maps.loadingError.message ) || false,
     map,
     mapId: map && map.mapId,
     layers
@@ -39,13 +41,17 @@ const Save = React.createClass({
         loadMapInfo: React.PropTypes.func,
         map: React.PropTypes.object,
         layers: React.PropTypes.array,
-        params: React.PropTypes.object
+        params: React.PropTypes.object,
+        errorMessage: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool]),
+        handleAlertDismiss: React.PropTypes.func
     },
     getDefaultProps() {
         return {
             onMapSave: () => {},
             loadMapInfo: () => {},
-            show: false
+            handleAlertDismiss: () => {},
+            show: false,
+            errorMessage: false
         };
     },
     componentWillMount() {
@@ -60,8 +66,20 @@ const Save = React.createClass({
             this.props.loadMapInfo(ConfigUtils.getConfigProp("geoStoreUrl") + "extjs/resource/" + props.mapId, props.mapId);
         }
     },
+    renderError() {
+        if (this.props.errorMessage) {
+            let alerts = [{
+                    type: "danger",
+                    headline: <Message msgId="map.saveError" />,
+                    message: this.props.errorMessage
+                }];
+            return (
+                <Notifier alerts={alerts} onDismiss={this.props.handleAlertDismiss} />);
+        }
+    },
     render() {
-        return (<ConfirmModal
+        return (<div>
+            <ConfirmModal
             confirmText={<Message msgId="save" />}
             cancelText={<Message msgId="cancel" />}
             titleText={<Message msgId="map.saveTitle" />}
@@ -69,7 +87,11 @@ const Save = React.createClass({
             show={this.props.show}
             onClose={this.props.onClose}
             onConfirm={this.goForTheUpdate}
-            />);
+            />
+            <div>
+               {this.renderError()}
+            </div>
+        </div>);
     },
     goForTheUpdate() {
         if (this.props.mapId) {
@@ -117,7 +139,8 @@ module.exports = {
     {
         onClose: toggleControl.bind(null, 'save', false),
         onMapSave: updateMap,
-        loadMapInfo
+        loadMapInfo,
+        handleAlertDismiss: loadError.bind(null, false)
     })(assign(Save, {
         BurgerMenu: {
             name: 'save',
