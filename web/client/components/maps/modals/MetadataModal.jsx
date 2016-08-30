@@ -7,8 +7,12 @@
  */
 
 const React = require('react');
+const {Table} = require('react-bootstrap');
 const Metadata = require('../forms/Metadata');
 const Thumbnail = require('../forms/Thumbnail');
+// TODO: move in form/Choice
+const Choice = require('../../print/Choice');
+
 require('./css/modals.css');
 
 const {Modal, Button, Glyphicon, Grid, Row, Col} = require('react-bootstrap');
@@ -41,7 +45,10 @@ const MetadataModal = React.createClass({
         includeCloseButton: React.PropTypes.bool,
         map: React.PropTypes.object,
         style: React.PropTypes.object,
-        fluid: React.PropTypes.bool
+        fluid: React.PropTypes.bool,
+        displayPermissionEditor: React.PropTypes.bool,
+        availablePermissions: React.PropTypes.arrayOf(React.PropTypes.string),
+        groups: React.PropTypes.arrayOf(React.PropTypes.object)
     },
     contextTypes: {
         messages: React.PropTypes.object
@@ -60,7 +67,41 @@ const MetadataModal = React.createClass({
             useModal: true,
             closeGlyph: "",
             includeCloseButton: true,
-            fluid: true
+            fluid: true,
+            displayPermissionEditor: true,
+            availablePermissions: ["canRead", "canWrite"],
+            groups: [
+                { name: "hey", permission: "canRead" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "yeah", permission: "canWrite" },
+                { name: "it's a very long list", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "oh!", permission: "canWrite" },
+                { name: "last", permission: "canWrite" }]
         };
     },
     setMapNameValue(newName) {
@@ -87,6 +128,48 @@ const MetadataModal = React.createClass({
             this.props.onSave(this.props.map.id, name, description);
         }
     },
+    onChangePermission(index, input) {
+        console.log("input: " + input + "\naltro: " + index);
+        this.props.groups[index].permission = input;
+    },
+    renderPermissionEditor() {
+        if (this.props.displayPermissionEditor) {
+            return (
+                <div>
+                    <b style={{cursor: "default"}}><Message msgId="groups" /> <Message msgId="permissions" /></b>
+                    <Table className="permissions-table" bordered condensed hover>
+                        <thead>
+                            <tr>
+                                <th><Message msgId="group" /></th>
+                                <th><Message msgId="permission" /></th>
+                                <th><Message msgId="groupEdit" /></th>
+                                <th><Message msgId="permissionDelete" /></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.props.groups.map((group, index) => {
+                                return (
+                                    <tr className={index / 2 === 0 ? "even" : "odd"}>
+                                        <td>{group.name}</td>
+                                        <td>
+                                            <Choice
+                                                ref="permChoise"
+                                                onChange={this.onChangePermission.bind(this, index)}
+                                                label=""
+                                                items={this.props.availablePermissions.map((perm) => ({name: perm, value: perm}))}
+                                                selected={group.permission}/>
+                                        </td>
+                                        <td><Button bsStyle="primary" className="square-button"><Glyphicon glyph="1-group-mod"/></Button></td>
+                                        <td><Button bsStyle="danger" className="square-button"><Glyphicon glyph="1-close"/></Button></td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </Table>
+                </div>
+            );
+        }
+    },
     renderLoading() {
         return this.props.map && this.props.map.updating ? <Spinner spinnerName="circle" key="loadingSpinner" noFadeIn/> : null;
     },
@@ -110,15 +193,16 @@ const MetadataModal = React.createClass({
             bsSize={this.props.buttonSize}
             onClick={this.props.onClose}><Message msgId="close" /></Button> : <span/>}
         </span>);
-        const body = (<Metadata role="body" ref="mapMetadataForm"
-            onChange={() => {
-                this.setState({metadataValid: this.refs.mapMetadataForm.isValid()});
-            }}
-            map={this.props.map}
-            nameFieldText={<Message msgId="map.name" />}
-            descriptionFieldText={<Message msgId="map.description" />}
-            namePlaceholderText={LocaleUtils.getMessageById(this.context.messages, "map.namePlaceholder") || "Map Name"}
-            descriptionPlaceholderText={LocaleUtils.getMessageById(this.context.messages, "map.descriptionPlaceholder") || "Map Description"}
+        const body = (
+            <Metadata role="body" ref="mapMetadataForm"
+                onChange={() => {
+                    this.setState({metadataValid: this.refs.mapMetadataForm.isValid()});
+                }}
+                map={this.props.map}
+                nameFieldText={<Message msgId="map.name" />}
+                descriptionFieldText={<Message msgId="map.description" />}
+                namePlaceholderText={LocaleUtils.getMessageById(this.context.messages, "map.namePlaceholder") || "Map Name"}
+                descriptionPlaceholderText={LocaleUtils.getMessageById(this.context.messages, "map.descriptionPlaceholder") || "Map Description"}
             />);
         return this.props.useModal ? (
             <Modal {...this.props.options}
@@ -144,6 +228,7 @@ const MetadataModal = React.createClass({
                                 {body}
                             </Col>
                         </Row>
+                        {this.renderPermissionEditor()}
                     </Grid>
                 </Modal.Body>
                 <Modal.Footer>

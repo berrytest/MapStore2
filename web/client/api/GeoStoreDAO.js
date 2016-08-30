@@ -128,6 +128,12 @@ var Api = {
             "resources/resource/" + resourceId,
             this.addBaseUrl(_.merge({
             }, options)));
+    },
+    getUserGroups: function(options) {
+        let url = "usergroups/";
+        return axios.get(url, this.addBaseUrl(parseOptions(options))).then(function(response) {
+            return response.data;
+        });
     }
 };
 
