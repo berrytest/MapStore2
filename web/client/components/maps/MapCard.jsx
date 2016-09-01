@@ -11,9 +11,16 @@ const Message = require('../I18N/Message');
 const GridCard = require('../misc/GridCard');
 const thumbUrl = require('./style/default.png');
 const assign = require('object-assign');
-const MetadataModal = require('./modals/MetadataModal');
-const ConfirmModal = require('./modals/ConfirmModal');
+const {connect} = require('react-redux');
+const {loadPermissions} = require('../../actions/maps');
 
+const MetadataModal = connect(
+    (state = {}) => ({
+        availableGroups: state.security && state.security.user && state.security.user.groups && state.security.user.groups.group || [ ] // TODO: add message when array is empty
+        // permissions: state.controls && state.controls.metadatamodal && state.controls.metadatamodal.groups || [ ]  // TODO: add message when array is empty
+    }),
+    { loadPermissions }, null, {withRef: true} )(require('./modals/MetadataModal'));
+const ConfirmModal = require('./modals/ConfirmModal');
 
 require("./style/mapcard.css");
 
@@ -48,7 +55,7 @@ const MapCard = React.createClass({
         };
     },
     onEdit: function(map) {
-        this.refs.metadataModal.setMapNameValue(map.name);
+        this.refs.metadataModal.getWrappedInstance().setMapNameValue(map.name);
         this.open();
     },
     onConfirmDelete() {

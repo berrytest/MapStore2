@@ -23,6 +23,8 @@ const MAP_DELETED = 'MAP_DELETED';
 const MAP_SAVED = 'MAP_SAVED';
 const ATTRIBUTE_UPDATED = 'ATTRIBUTE_UPDATED';
 const THUMBNAIL_DELETED = 'THUMBNAIL_DELETED';
+const PERMISSIONS_LIST_LOADING = 'PERMISSIONS_LIST_LOADING';
+const PERMISSIONS_LIST_LOADED = 'PERMISSIONS_LIST_LOADED';
 
 function mapsLoading(searchText, params) {
     return {
@@ -54,7 +56,6 @@ function mapCreated(resourceId, metadata, content, error) {
         metadata,
         content,
         error
-
     };
 }
 
@@ -123,12 +124,39 @@ function attributeUpdated(resourceId, name, value, type, error) {
     };
 }
 
+function permissionsLoading(mapId) {
+    return {
+        type: PERMISSIONS_LIST_LOADING,
+        mapId
+    };
+}
+
+function permissionsLoaded(permissions, mapId) {
+    return {
+        type: PERMISSIONS_LIST_LOADED,
+        permissions,
+        mapId
+    };
+}
+
 function loadMaps(geoStoreUrl, searchText="*", params={start: 0, limit: 20}) {
     return (dispatch) => {
         let opts = {params, baseURL: geoStoreUrl };
         dispatch(mapsLoading(searchText, params));
         GeoStoreApi.getResourcesByCategory("MAP", searchText, opts).then((response) => {
             dispatch(mapsLoaded(response, params, searchText));
+        }).catch((e) => {
+            dispatch(loadError(e));
+        });
+    };
+}
+
+function loadPermissions(/*geoStoreUrl,*/ mapId) {
+    return (dispatch) => {
+        // let opts = {baseURL: geoStoreUrl };
+        dispatch(permissionsLoading(mapId));
+        GeoStoreApi.getPermissions(mapId, {}/*opts*/).then((response) => {
+            dispatch(permissionsLoaded(response, mapId));
         }).catch((e) => {
             dispatch(loadError(e));
         });
@@ -232,6 +260,7 @@ function deleteMap(resourceId, options) {
 
 module.exports = {
     MAPS_LIST_LOADED, MAPS_LIST_LOADING, MAPS_LIST_LOAD_ERROR, MAP_CREATED, MAP_UPDATING, MAP_UPDATED, MAP_DELETED, MAP_DELETING, MAP_SAVED, ATTRIBUTE_UPDATED, THUMBNAIL_DELETED,
+    PERMISSIONS_LIST_LOADING, PERMISSIONS_LIST_LOADED,
     loadMaps, updateMap, updateMapMetadata, mapMetadataUpdated, deleteMap, deleteThumbnail, createThumbnail,
-    createMap, loadError
+    createMap, loadError, loadPermissions
 };

@@ -43,7 +43,8 @@ var MapGrid = React.createClass({
                     "marginBottom": "20px"
                 }
             },
-            maps: []
+            maps: [],
+            groups: []
         };
     },
     renderMaps: function(maps, mapType) {
@@ -53,7 +54,12 @@ var MapGrid = React.createClass({
             return children === 1 ?
                 React.cloneElement(React.Children.only(this.props.children), {viewerUrl, key: map.id, mapType, map}) :
                 <Col key={map.id} {...this.props.colProps}>
-                    <MapCard viewerUrl={viewerUrl} mapType={mapType} map={map} onSave={this.props.updateMapMetadata} onCreateThumbnail={this.props.createThumbnail} onDeleteThumbnail={this.props.deleteThumbnail} onMapDelete={this.props.deleteMap} />
+                    <MapCard
+                        viewerUrl={viewerUrl} mapType={mapType} map={map}
+                        onSave={this.props.updateMapMetadata}
+                        onCreateThumbnail={this.props.createThumbnail}
+                        onDeleteThumbnail={this.props.deleteThumbnail}
+                        onMapDelete={this.props.deleteMap} />
                 </Col>;
         });
     },

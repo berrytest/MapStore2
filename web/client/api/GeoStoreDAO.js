@@ -134,6 +134,10 @@ var Api = {
         return axios.get(url, this.addBaseUrl(parseOptions(options))).then(function(response) {
             return response.data;
         });
+    },
+    getPermissions: function(mapId, options) {
+        let url = "resources/resource/" + mapId + "/permissions";
+        return axios.get(url, this.addBaseUrl(parseOptions(options))).then(function(response) {return response.data; });
     }
 };
 
