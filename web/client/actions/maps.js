@@ -141,7 +141,7 @@ function permissionsLoaded(permissions, mapId) {
 
 function loadMaps(geoStoreUrl, searchText="*", params={start: 0, limit: 20}) {
     return (dispatch) => {
-        let opts = {params, baseURL: geoStoreUrl };
+        let opts = assign({}, {params}, geoStoreUrl ? {baseURL: geoStoreUrl} : {});
         dispatch(mapsLoading(searchText, params));
         GeoStoreApi.getResourcesByCategory("MAP", searchText, opts).then((response) => {
             dispatch(mapsLoaded(response, params, searchText));
