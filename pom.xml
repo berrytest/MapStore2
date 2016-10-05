@@ -34,6 +34,9 @@
       </modules>
 
     </profile>
+    <profile>
+      <id>staging</id>
+    </profile>
   </profiles>
 
   
