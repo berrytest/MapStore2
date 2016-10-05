@@ -139,7 +139,7 @@
     "clean": "rimraf ./web/client/dist",
     "compile": "npm run clean && mkdirp ./web/client/dist && webpack --config prod-webpack.config.js",
     "analyze": "npm run clean && mkdirp ./web/client/dist && webpack --json | webpack-bundle-size-analyzer",
-    "start": "webpack-dev-server --progress --colors --port 8081 --hot --inline --content-base web/client",
+    "start": "webpack-dev-server --progress --colors --port $PORT --hot --inline --content-base web/client",
     "examples": "webpack-dev-server --progress --colors --port 8081 --hot --inline --content-base web/client --config examples-webpack.config.js",
     "test": "karma start ./karma.conf.single-run.js",
     "pretest": "npm run lint",
