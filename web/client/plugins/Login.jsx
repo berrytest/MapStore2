@@ -9,6 +9,7 @@
 const React = require('react');
 const assign = require('object-assign');
 const {UserDetails, PasswordReset, UserMenu, Login, LoginNav } = require('./login/index');
+const {refreshTokenEpic} = require('../epics/login');
 
 require('./login/login.css');
 /**
@@ -59,5 +60,8 @@ module.exports = {
             priority: 1
         }
     }),
-    reducers: {security: require('../reducers/security')}
+    reducers: {security: require('../reducers/security')},
+    epics: {
+        refreshTokenEpic
+    }
 };
