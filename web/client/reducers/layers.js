@@ -17,6 +17,8 @@ var assign = require('object-assign');
 var {isObject, isArray, head, isString} = require('lodash');
 
 const LayersUtils = require('../utils/LayersUtils');
+const SecurityUtils = require('../utils/SecurityUtils');
+
 
 const deepChange = (nodes, findValue, propName, propValue) => {
     if (nodes && isArray(nodes) && nodes.length > 0) {
@@ -141,6 +143,13 @@ function layers(state = [], action) {
             false);
             const newLayers = flatLayers.map((layer) => {
                 if (layer.id === action.layer) {
+                    if (layer.url) {
+                        const urls = (isArray(layer.url) ? layer.url : [layer.url]).map((url) => url.split("\?")[0]);
+                        let newParams = assign({}, layer.params);
+                        urls.forEach(url => SecurityUtils.addAuthenticationParameter(url, newParams));
+                        return assign({}, layer, assign({}, action.newProperties, {params: newParams}));
+                    }
+
                     return assign({}, layer, action.newProperties);
                 } else if (layer.group === 'background' && isBackground && action.newProperties.visibility) {
                     // TODO remove

@@ -9,7 +9,7 @@
 const ConfigUtils = require('./ConfigUtils');
 const URL = require('url');
 const assign = require('object-assign');
-const {head} = require('lodash');
+const {head/*, omit*/} = require('lodash');
 
 /**
  * This utility class will get information about the current logged user directly from the store.
@@ -158,6 +158,8 @@ const SecurityUtils = {
     /**
      * This method will add query parameter based authentications to an object
      * containing query paramaters.
+     * It will also remove any existing authentication parameter if the user is
+     * not logged in.
      */
     addAuthenticationParameter: function(url, parameters) {
         if (!url || !this.isAuthenticationActivated()) {
@@ -166,10 +168,10 @@ const SecurityUtils = {
         switch (this.getAuthenticationMethod(url)) {
         case 'authkey':
             const token = this.getToken();
-            if (!token) {
-                return parameters;
-            }
             const authParam = this.getAuthKeyParameter(url);
+            /*if (!token) {
+                return omit(parameters, authParam);
+            }*/
             return assign(parameters || {}, {[authParam]: token});
         default:
                 // we cannot handle the required authentication method

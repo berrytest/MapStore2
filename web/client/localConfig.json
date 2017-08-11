@@ -26,6 +26,10 @@
     "authenticationRules": [{
         "urlPattern": ".*geostore.*",
         "method": "bearer"
+    }, {
+        "urlPattern": "\\/geoserver.*",
+        "authkeyParamName": "ms2-authkey",
+        "method": "authkey"
     }],
     "monitorState": [
       {"name": "routing", "path": "routing.location.pathname"},
